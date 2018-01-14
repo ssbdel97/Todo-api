@@ -33,12 +33,27 @@ app.post('/todos',function(req,res){
 		return res.status(400).send();
 	}
 	body.description=body.description.trim();
-	//add id field
+	//add id field 
 	body.id=todoNextId++;
 	//console.log('description '+body.description);
 	todos.push(body);
 	res.json(body);
 });
+
+app.delete('/todos/:id',function(req,res){
+	var todoId=parseInt(req.params.id);
+	
+	var found=_.findWhere(todos, {id: todoId});;
+	
+	if(typeof found === 'undefined'){
+
+			res.status(404).json({"error": "no todo found with that id"});
+	}else{
+			todos=_.without(todos,found);
+			res.json(found);
+	}	
+});
+
 app.listen(PORT,function(){
 	console.log('Express Listening on PORT '+PORT +'!');
 });
