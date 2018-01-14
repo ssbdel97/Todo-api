@@ -1,21 +1,9 @@
 var express=require('express');
 var bodyParser = require('body-parser');
+var _ = require('underscore');
 var app =express();
 var PORT=process.env.PORT || 3000;
 app.use(bodyParser.json());
-// var todos = [{
-// 	id: 1,
-// 	description:'Meet Mom for lunch',
-// 	completed:false
-// },{
-// 	id: 2,
-// 	description:'Go to Market',
-// 	completed:false
-// },{
-// 	id: 3,
-// 	description:'Feed the cat in the evening',
-// 	completed:true
-// }];
 
 var todos=[];
 var todoNextId=1;
@@ -28,27 +16,24 @@ app.get('/todos',function(req,res){
 });
 app.get('/todos/:id',function(req,res){
 	
-	var todoId=req.params.id;
+	var todoId=parseInt(req.params.id);
 	
-	var found;
-	todos.forEach(function(item){
-		if(item.id == todoId){
-			found = item;
-			return ;
-		}
-		
-	});
+	var found=_.findWhere(todos, {id: todoId});;
+
 	if(typeof found === 'undefined'){
 
 			res.status(404).send();
 	}else{
-			//res.send('Asking for todo with id of '+req.params.id+ '\n'+found);
-			//res.send(found);
 			res.json(found);
 	}
 });
 app.post('/todos',function(req,res){
-	var body = req.body;
+	var body = _.pick(req.body,'description','completed');
+	if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ) {
+		return res.status(400).send();
+	}
+	body.description=body.description.trim();
+	//add id field
 	body.id=todoNextId++;
 	//console.log('description '+body.description);
 	todos.push(body);
