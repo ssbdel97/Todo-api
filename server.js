@@ -34,17 +34,25 @@ app.get('/todos', function(req, res) {
 app.get('/todos/:id', function(req, res) {
 
 	var todoId = parseInt(req.params.id, 10);
+	db.todo.findById(todoId).then(function(todo) {
+		if (!!todo) {
+			res.json(todo.toJSON());
+		}else{
+			res.status(404).send();
+		}
+	}, function(e) {
+		res.status(500).json(e);
+	});
+	// var found = _.findWhere(todos, {
+	// 	id: todoId
+	// });;
 
-	var found = _.findWhere(todos, {
-		id: todoId
-	});;
+	// if (typeof found === 'undefined') {
 
-	if (typeof found === 'undefined') {
-
-		res.status(404).send();
-	} else {
-		res.json(found);
-	}
+	// 	res.status(404).send();
+	// } else {
+	// 	res.json(found);
+	// }
 });
 app.post('/todos', function(req, res) {
 	var body = _.pick(req.body, 'description', 'completed');
