@@ -74,10 +74,7 @@ app.get('/todos/:id', function(req, res) {
 });
 app.post('/todos', function(req, res) {
 	var body = _.pick(req.body, 'description', 'completed');
-	if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-		return res.status(400).send();
-	}
-
+	
 	db.todo.create(body).then(function(todo) {
 		res.json(todo.toJSON());
 	}, function(e) {
@@ -151,6 +148,15 @@ app.put('/todos/:id', function(req, res) {
 	}, function() {
 		res.status(500).send();
 	});
+});
+app.post('/users', function(req,res){
+	var body = _.pick(req.body, 'email', 'password');
+	db.user.create(body).then(function(user){
+		res.json(user.toJSON());
+	}, function(e){
+		res.status(400).json(e);
+	});
+
 });
 db.sequelize.sync().then(function() {
 
