@@ -2,10 +2,11 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
-var app = express();
-var PORT = process.env.PORT || 3000;
 var bcrypt = require('bcrypt');
 var middleware = require('./middleware.js')(db);
+
+var app = express();
+var PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 var todos = [];
@@ -78,7 +79,12 @@ app.post('/todos', middleware.requireAuthentication, function(req, res) {
 	var body = _.pick(req.body, 'description', 'completed');
 
 	db.todo.create(body).then(function(todo) {
-		res.json(todo.toJSON());
+		req.user.addTodo(todo).then(function() {
+			return todo.reload();
+		}).then(function(todo) {
+			res.json(todo.toJSON());
+
+		});
 	}, function(e) {
 		res.status(400).json(e);
 	});
@@ -168,7 +174,6 @@ app.post('/users/login', function(req, res) {
 			res.header('Auth', token).json(user.toPublicJSON());
 		} else {
 			res.status(401).send()
-
 		}
 	}, function() {
 		res.status(401).send()
