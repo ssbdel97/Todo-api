@@ -152,7 +152,7 @@ app.put('/todos/:id', function(req, res) {
 app.post('/users', function(req,res){
 	var body = _.pick(req.body, 'email', 'password');
 	db.user.create(body).then(function(user){
-		res.json(user.toJSON());
+		res.json(user.toPublicJSON());
 	}, function(e){
 		res.status(400).json(e);
 	});
